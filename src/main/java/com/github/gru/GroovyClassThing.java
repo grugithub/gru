@@ -5,8 +5,12 @@ import groovy.lang.GroovyClassLoader;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,19 +26,41 @@ public class GroovyClassThing implements GruScriptInterface {
         ClassLoader parent = getClass().getClassLoader();
         GroovyClassLoader loader = new GroovyClassLoader(parent);
 
-        Class groovyClass = null;
+        final List<Path> pluginsToLoad = new ArrayList<Path>();
+
+        Path gruFolder = new File(directory + File.separator + "gru").toPath();
+
         try {
-            groovyClass = loader.parseClass(new File(directory + File.separator + "gru" + File.separator + "FirstGroove.groovy"));
-            plugins.add((GruScriptInterface)groovyClass.newInstance());
+            Files.walkFileTree(gruFolder, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+
+                    if (file.toString().endsWith(".groovy")) {
+                        pluginsToLoad.add(file);
+                    }
+
+                    return FileVisitResult.CONTINUE;
+                }
+            });
         } catch (IOException e) {
-            System.err.println("Unable to parse plugin script: " + directory + File.separator + "gru" + File.separator + "FirstGroove.groovy");
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            System.err.println("Unable to instantiate plugin script: " + directory + File.separator + "gru" + File.separator + "FirstGroove.groovy");
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            System.err.println("Unable to instantiate plugin script: " + directory + File.separator + "gru" + File.separator + "FirstGroove.groovy");
-            e.printStackTrace();
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        for (Path path : pluginsToLoad) {
+            try {
+                Class groovyClass = loader.parseClass(path.toFile());
+                plugins.add((GruScriptInterface)groovyClass.newInstance());
+                System.out.println("Loaded plugin: " + path.toString());
+            } catch (InstantiationException e) {
+                System.err.println("Unable to instantiate plugin script: " + path.toString());
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                System.err.println("Unable to instantiate plugin script: " + path.toString());
+                e.printStackTrace();
+            } catch (IOException e) {
+                System.err.println("Unable to parse plugin script: " + path.toString());
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
     }
 
@@ -51,6 +77,14 @@ public class GroovyClassThing implements GruScriptInterface {
         // Call all plugins
         for (GruScriptInterface gruScriptInterface : plugins) {
             gruScriptInterface.fileDeleted(eventType, path);
+        }
+    }
+
+    @Override
+    public void statusUnknown(Path path, CompilationUnit compilationUnit) {
+        // Call all plugins
+        for (GruScriptInterface gruScriptInterface : plugins) {
+            gruScriptInterface.statusUnknown(path, compilationUnit);
         }
     }
 }

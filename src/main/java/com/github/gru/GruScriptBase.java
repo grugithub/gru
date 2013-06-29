@@ -3,6 +3,7 @@ package com.github.gru;
 import com.github.antlrjavaparser.api.CompilationUnit;
 import com.github.antlrjavaparser.api.body.TypeDeclaration;
 import com.github.antlrjavaparser.api.expr.AnnotationExpr;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -28,7 +29,12 @@ public abstract class GruScriptBase implements GruScriptInterface {
 
     }
 
-    public boolean hasClassAnnotation(CompilationUnit compilationUnit, String annotationName) {
+    @Override
+    public void statusUnknown(Path path, CompilationUnit compilationUnit) {
+
+    }
+
+    protected boolean hasClassAnnotation(CompilationUnit compilationUnit, String annotationName) {
         for (TypeDeclaration typeDeclaration : compilationUnit.getTypes()) {
             for (AnnotationExpr annotationExpr : typeDeclaration.getAnnotations()) {
                 if (annotationExpr.getName().toString().equals(annotationName)) {
@@ -40,7 +46,7 @@ public abstract class GruScriptBase implements GruScriptInterface {
         return false;
     }
 
-    public boolean hasPackageAnnotation(CompilationUnit compilationUnit, String annotationName) {
+    protected boolean hasPackageAnnotation(CompilationUnit compilationUnit, String annotationName) {
         if (compilationUnit.getPackage() != null) {
             for (AnnotationExpr annotationExpr : compilationUnit.getPackage().getAnnotations()) {
                 if (annotationExpr.getName().toString().equals(annotationName)) {
@@ -52,7 +58,7 @@ public abstract class GruScriptBase implements GruScriptInterface {
         return false;
     }
 
-    public void createFileFromString(String fileNameAndPath, String fileContents) {
+    protected void createFileFromString(String fileNameAndPath, String fileContents) {
 
         Path path = new File((fileNameAndPath)).toPath();
 
@@ -62,6 +68,7 @@ public abstract class GruScriptBase implements GruScriptInterface {
         try {
             writer = Files.newBufferedWriter(path, charset);
             writer.write(fileContents, 0, fileContents.length());
+            System.out.println("Created file: " + fileNameAndPath);
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
         } finally {
@@ -76,11 +83,33 @@ public abstract class GruScriptBase implements GruScriptInterface {
         }
     }
 
-    public void deleteFile(Path path) {
+    protected void createRelatedFile(Path hostFile, String classifier, String extension, String fileContents) {
+        createFileFromString(getRelatedFileName(hostFile, classifier, extension), fileContents);
+    }
+
+    protected void deleteRelatedFile(Path hostFile, String classifier, String extension) {
+        deleteFile(getRelatedFileName(hostFile, classifier, extension));
+    }
+
+    private String getRelatedFileName(Path hostFile, String classifier, String extension) {
+        // Remove the extension
+        String fileName = FilenameUtils.removeExtension(hostFile.toString());
+
+        fileName = fileName + "_Gru_" + classifier + "." + extension;
+
+        return fileName;
+    }
+
+    protected void deleteFile(String fileNameAndPath) {
+        Path path = new File((fileNameAndPath)).toPath();
+
         try {
-            Files.deleteIfExists(path);
+            if (Files.exists(path)) {
+                Files.deleteIfExists(path);
+                System.out.println("Deleted file: " + fileNameAndPath);
+            }
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
     }
 }

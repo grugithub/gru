@@ -1,7 +1,15 @@
 package com.github.gru;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: mdehaan
@@ -17,6 +25,13 @@ public class GruMain {
 
         // Start listening for file changes
         Path dir = Paths.get(currentWorkingDirectory);
-        new WatchDir(dir, true, new FileChangedEvent(currentWorkingDirectory)).processEvents();
+
+        FileChangedEvent fileChangedEvent = new FileChangedEvent(currentWorkingDirectory);
+
+        // Initialize from an unknown status
+        fileChangedEvent.initialize(currentWorkingDirectory);
+
+        // Start the listener
+        new WatchDir(dir, true, fileChangedEvent).processEvents();
     }
 }
