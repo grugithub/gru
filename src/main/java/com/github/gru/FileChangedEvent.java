@@ -34,7 +34,6 @@ public class FileChangedEvent {
 
         if (eventType == ENTRY_CREATE || eventType == ENTRY_MODIFY) {
             try {
-                System.out.println("Java file!! " + eventType.name());
                 CompilationUnit compilationUnit = JavaParser.parse(path.toFile());
                 groovyClassThing.fileChanged(eventType, path, compilationUnit);
             } catch (IOException ex) {
