@@ -28,9 +28,7 @@ public class FileChangedEvent {
     private GroovyClassThing groovyClassThing = new GroovyClassThing();
 
     public FileChangedEvent(String currentWorkingDirectory) {
-        System.out.println("Loading Gru plugins...");
         groovyClassThing.loadPlugins(currentWorkingDirectory);
-        System.out.println("Plugins loaded");
     }
 
     public void fileChanged(WatchEvent.Kind<?> eventType, Path path) {

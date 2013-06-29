@@ -23,12 +23,20 @@ public class GroovyClassThing implements GruScriptInterface {
     private List<GruScriptInterface> plugins = new ArrayList<GruScriptInterface>();
 
     public void loadPlugins(String directory) {
+
+        System.out.println("Loading Gru plugins...");
+
         ClassLoader parent = getClass().getClassLoader();
         GroovyClassLoader loader = new GroovyClassLoader(parent);
 
         final List<Path> pluginsToLoad = new ArrayList<Path>();
 
         Path gruFolder = new File(directory + File.separator + "gru").toPath();
+
+        if (!gruFolder.toFile().exists()) {
+            System.out.println("Plugin directory not found in project: " + gruFolder);
+            return;
+        }
 
         try {
             Files.walkFileTree(gruFolder, new SimpleFileVisitor<Path>() {
@@ -62,6 +70,8 @@ public class GroovyClassThing implements GruScriptInterface {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
         }
+
+        System.out.println("Plugins loaded");
     }
 
     @Override
