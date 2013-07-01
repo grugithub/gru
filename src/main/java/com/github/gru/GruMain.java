@@ -1,5 +1,7 @@
 package com.github.gru;
 
+import com.github.gru.annotations.GruJavaBean;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -15,18 +17,16 @@ import java.util.List;
  * User: mdehaan
  * Date: 6/28/13
  */
-//@Deprecated
 public class GruMain {
+
     public static void main(String[] args) throws Exception {
         String currentWorkingDirectory = System.getProperty("user.dir");
-
-        //GroovyClassThing thing = new GroovyClassThing();
-        //thing.test(currentWorkingDirectory);
 
         // Start listening for file changes
         Path dir = Paths.get(currentWorkingDirectory);
 
-        FileChangedEvent fileChangedEvent = new FileChangedEvent(currentWorkingDirectory);
+        FileChangedEvent fileChangedEvent = new FileChangedEvent();
+        fileChangedEvent.loadPlugins(currentWorkingDirectory);
 
         // Initialize from an unknown status
         fileChangedEvent.initialize(currentWorkingDirectory);

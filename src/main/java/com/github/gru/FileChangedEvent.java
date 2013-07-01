@@ -27,7 +27,7 @@ public class FileChangedEvent {
 
     private GroovyClassThing groovyClassThing = new GroovyClassThing();
 
-    public FileChangedEvent(String currentWorkingDirectory) {
+    public void loadPlugins(String currentWorkingDirectory) {
         groovyClassThing.loadPlugins(currentWorkingDirectory);
     }
 

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.WatchEvent;
 
 /**
@@ -66,7 +67,7 @@ public abstract class GruScriptBase implements GruScriptInterface {
 
         BufferedWriter writer = null;
         try {
-            writer = Files.newBufferedWriter(path, charset);
+            writer = Files.newBufferedWriter(path, charset, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
             writer.write(fileContents, 0, fileContents.length());
             System.out.println("Created file: " + fileNameAndPath);
         } catch (IOException x) {
@@ -78,6 +79,7 @@ public abstract class GruScriptBase implements GruScriptInterface {
                     writer.close();
                 } catch (Exception ex) {
                     // Ignore
+                    ex.printStackTrace();
                 }
             }
         }
