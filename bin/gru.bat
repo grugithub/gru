@@ -18,7 +18,7 @@ set CLASSPATH=%GRU_HOME%\lib\groovy-2.1.5.jar;%CLASSPATH%
 set CLASSPATH=%GRU_HOME%\lib\gru-0.0.1.BUILD-SNAPSHOT.jar;%CLASSPATH%
 set CLASSPATH=%GRU_HOME%\lib\org.abego.treelayout.core-1.0.1.jar;%CLASSPATH%
 set CLASSPATH=%GRU_HOME%\lib\stringtemplate-3.2.1.jar;%CLASSPATH%
-set CLASSPATH=%GRU_HOME%\lib\commons-lang-2.4.jar;%CLASSPATH%
+set CLASSPATH=%GRU_HOME%\lib\commons-lang3-3.1.jar;%CLASSPATH%
 
 java com.github.gru.GruMain
 

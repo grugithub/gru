@@ -9,7 +9,7 @@ import com.github.antlrjavaparser.api.body.TypeDeclaration
 import com.github.antlrjavaparser.api.body.VariableDeclarator
 import com.github.antlrjavaparser.api.type.PrimitiveType
 import com.github.gru.GruScriptBase
-import org.apache.commons.lang.WordUtils
+import org.apache.commons.lang3.text.WordUtils
 
 import java.nio.file.Path
 import java.nio.file.WatchEvent
