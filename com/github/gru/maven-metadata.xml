@@ -4,8 +4,8 @@
   <artifactId>gru</artifactId>
   <versioning>
     <versions>
-      <version>0.0.1.BUILD-SNAPSHOT</version>
+      <version>0.0.2.BUILD-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20130702212346</lastUpdated>
+    <lastUpdated>20130702213531</lastUpdated>
   </versioning>
 </metadata>

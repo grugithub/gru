@@ -2,23 +2,23 @@
 <metadata modelVersion="1.1.0">
   <groupId>com.github</groupId>
   <artifactId>gru</artifactId>
-  <version>0.0.1.BUILD-SNAPSHOT</version>
+  <version>0.0.2.BUILD-SNAPSHOT</version>
   <versioning>
     <snapshot>
-      <timestamp>20130702.212346</timestamp>
+      <timestamp>20130702.213531</timestamp>
       <buildNumber>1</buildNumber>
     </snapshot>
-    <lastUpdated>20130702212346</lastUpdated>
+    <lastUpdated>20130702213531</lastUpdated>
     <snapshotVersions>
       <snapshotVersion>
         <extension>jar</extension>
-        <value>0.0.1.BUILD-20130702.212346-1</value>
-        <updated>20130702212346</updated>
+        <value>0.0.2.BUILD-20130702.213531-1</value>
+        <updated>20130702213531</updated>
       </snapshotVersion>
       <snapshotVersion>
         <extension>pom</extension>
-        <value>0.0.1.BUILD-20130702.212346-1</value>
-        <updated>20130702212346</updated>
+        <value>0.0.2.BUILD-20130702.213531-1</value>
+        <updated>20130702213531</updated>
       </snapshotVersion>
     </snapshotVersions>
   </versioning>
