@@ -163,8 +163,14 @@ public class GruJavaBean extends GruScriptBase {
         String importString = "";
         gatherImports(compilationUnit).each {importString += "${it}"};
 
+        String packageName = "";
+        if (compilationUnit.getPackage() != null) {
+            packageName = compilationUnit.getPackage().toString().replaceAll("[\n\r]", "") +
+                System.lineSeparator();
+        }
+
         String content = String.format(FILE_FORMAT,
-            compilationUnit.getPackage().toString(),
+            packageName,
             importString,
             mainClass.getName(),
             gettersAndSetters.toString(),
