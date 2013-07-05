@@ -1,4 +1,4 @@
-package com.github.gru.annotations;
+package com.psclistens.gru.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
