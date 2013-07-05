@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.psclistens.gru</groupId>
     <artifactId>gru-annotations</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.3</version>
     <packaging>bundle</packaging>
     <name>gru-annotations</name>
     <description>Gru is a Java productivity enhancer</description>
@@ -76,7 +76,7 @@
                 <configuration>
                     <instructions>
                         <Export-Package>com.psclistens.gru.*</Export-Package>
-                        <Import-Package></Import-Package>
+                        <Import-Package />
                     </instructions>
                 </configuration>
             </plugin>
