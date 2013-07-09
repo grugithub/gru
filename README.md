@@ -23,11 +23,11 @@ Maven Dependency
 
 If you would like to use the built-in plugins for Gru, you can include the gru-annotations dependency and add any of the pre-packaged annotations in your project.
 
-```xml
+```xml        
         <dependency>
-            <groupId>com.github.gru</groupId>
+            <groupId>com.psclistens.gru</groupId>
             <artifactId>gru-annotations</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.3</version>
             <scope>provided</scope>
-        </dependency>
+        </dependency>        
 ```
