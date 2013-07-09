@@ -8,7 +8,7 @@ https://github.com/grugithub/gru/releases
 Unzip the contents and create a new environment variable named GRU\_HOME that points to that folder.
 
 Example:
-GRU\_HOME=/java/apps/gru-0.0.2
+GRU\_HOME=/java/apps/gru-0.0.3
 
 Add the new folder to your path:
 
