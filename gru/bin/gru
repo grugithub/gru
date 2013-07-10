@@ -13,10 +13,10 @@ GRU_CP=$GRU_HOME/lib/asm-tree-4.0.jar:$GRU_CP
 GRU_CP=$GRU_HOME/lib/asm-util-4.0.jar:$GRU_CP
 GRU_CP=$GRU_HOME/lib/commons-io-2.1.jar:$GRU_CP
 GRU_CP=$GRU_HOME/lib/groovy-2.1.5.jar:$GRU_CP
-GRU_CP=$GRU_HOME/lib/gru-0.0.1.BUILD-SNAPSHOT.jar:$GRU_CP
+GRU_CP=$GRU_HOME/lib/gru.jar:$GRU_CP
 GRU_CP=$GRU_HOME/lib/org.abego.treelayout.core-1.0.1.jar:$GRU_CP
 GRU_CP=$GRU_HOME/lib/stringtemplate-3.2.1.jar:$GRU_CP
-GRU_CP=$GRU_HOME/lib/commons-lang3-3.1.jar;$GRU_CP
+GRU_CP=$GRU_HOME/lib/commons-lang3-3.1.jar:$GRU_CP
 
 export GRU_CP
 

@@ -1,6 +1,7 @@
 package com.github.gru;
 
 import com.github.antlrjavaparser.api.CompilationUnit;
+import com.github.antlrjavaparser.api.body.BodyDeclaration;
 import com.github.antlrjavaparser.api.body.TypeDeclaration;
 import com.github.antlrjavaparser.api.expr.AnnotationExpr;
 import org.apache.commons.io.FilenameUtils;
@@ -37,10 +38,18 @@ public abstract class GruScriptBase implements GruScriptInterface {
 
     protected boolean hasClassAnnotation(CompilationUnit compilationUnit, String annotationName) {
         for (TypeDeclaration typeDeclaration : compilationUnit.getTypes()) {
-            for (AnnotationExpr annotationExpr : typeDeclaration.getAnnotations()) {
-                if (annotationExpr.getName().toString().equals(annotationName)) {
-                    return true;
-                }
+            if (hasClassAnnotation((BodyDeclaration)typeDeclaration, annotationName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected boolean hasClassAnnotation(BodyDeclaration bodyDeclaration, String annotationName) {
+        for (AnnotationExpr annotationExpr : bodyDeclaration.getAnnotations()) {
+            if (annotationExpr.getName().toString().equals(annotationName)) {
+                return true;
             }
         }
 

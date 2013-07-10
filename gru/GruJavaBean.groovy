@@ -1,5 +1,4 @@
 import com.github.antlrjavaparser.api.CompilationUnit
-import com.github.antlrjavaparser.api.ImportDeclaration
 import com.github.antlrjavaparser.api.body.BodyDeclaration
 import com.github.antlrjavaparser.api.body.ClassOrInterfaceDeclaration
 import com.github.antlrjavaparser.api.body.FieldDeclaration
@@ -102,62 +101,10 @@ public class GruJavaBean extends GruScriptBase {
             return;
         }
 
-        ClassOrInterfaceDeclaration mainClass = (ClassOrInterfaceDeclaration)mainType;
-
-        List<FieldDeclaration> fieldsToUse = new ArrayList<FieldDeclaration>();
-        for (BodyDeclaration bodyDeclaration : mainClass.getMembers()) {
-            if (bodyDeclaration instanceof FieldDeclaration) {
-                fieldsToUse.add((FieldDeclaration)bodyDeclaration);
-            }
-        }
-
-        Map<String, String> nameTypeFields = new TreeMap<String, String>();
-
         StringBuffer gettersAndSetters = new StringBuffer();
 
-        for (FieldDeclaration fieldDeclaration : fieldsToUse) {
-
-            for (VariableDeclarator variableDeclarator : fieldDeclaration.getVariables()) {
-                String arrayDeclare = "[]".multiply(variableDeclarator.getId().getArrayCount());
-
-                String getterPrefix = "get";
-                if (fieldDeclaration.getType() instanceof PrimitiveType) {
-                    PrimitiveType primitiveType = (PrimitiveType)fieldDeclaration.getType();
-                    if (primitiveType.getType().equals(PrimitiveType.Primitive.Boolean)) {
-                        getterPrefix = "is";
-                    }
-                }
-
-                if (!hasGetter(variableDeclarator, mainClass)) {
-
-                    gettersAndSetters.append(
-                        String.format(GETTER_FORMAT,
-                            fieldDeclaration.getType().toString(),
-                            arrayDeclare,
-                            mainClass.getName(),
-                            getterPrefix,
-                            WordUtils.capitalize(variableDeclarator.getId().getName()),
-                            variableDeclarator.getId().getName(),
-                            System.lineSeparator()
-                        )
-                    );
-                }
-
-                if (!hasSetter(variableDeclarator, mainClass)) {
-
-                    gettersAndSetters.append(
-                            String.format(SETTER_FORMAT,
-                                    mainClass.getName(),
-                                    WordUtils.capitalize(variableDeclarator.getId().getName()),
-                                    fieldDeclaration.getType().toString(),
-                                    arrayDeclare,
-                                    variableDeclarator.getId().getName(),
-                                    System.lineSeparator()
-                            )
-                    );
-                }
-            }
-        }
+        ClassOrInterfaceDeclaration mainClass = (ClassOrInterfaceDeclaration)mainType;
+        visitMember(mainType, mainClass.getName(), gettersAndSetters);
 
         // Print out the imports of the file
         String importString = "";
@@ -178,6 +125,65 @@ public class GruJavaBean extends GruScriptBase {
         );
 
         createRelatedFile(path, "JavaBean", "aj", content)
+    }
+
+    private StringBuffer generateGettersAndSettersForMember(ClassOrInterfaceDeclaration mainClass, String memberPrefix) {
+        List<FieldDeclaration> fieldsToUse = new ArrayList<FieldDeclaration>();
+        for (BodyDeclaration bodyDeclaration : mainClass.getMembers()) {
+            if (bodyDeclaration instanceof FieldDeclaration) {
+                fieldsToUse.add((FieldDeclaration) bodyDeclaration);
+            }
+        }
+
+        Map<String, String> nameTypeFields = new TreeMap<String, String>();
+
+        StringBuffer gettersAndSetters = new StringBuffer();
+
+        for (FieldDeclaration fieldDeclaration : fieldsToUse) {
+
+            for (VariableDeclarator variableDeclarator : fieldDeclaration.getVariables()) {
+                String arrayDeclare = "[]".multiply(variableDeclarator.getId().getArrayCount());
+
+                String getterPrefix = "get";
+                if (fieldDeclaration.getType() instanceof PrimitiveType) {
+                    PrimitiveType primitiveType = (PrimitiveType) fieldDeclaration.getType();
+                    if (primitiveType.getType().equals(PrimitiveType.Primitive.Boolean)) {
+                        getterPrefix = "is";
+                    }
+                }
+
+                if (!hasGetter(variableDeclarator, mainClass)) {
+
+                    gettersAndSetters.append(
+                            String.format(GETTER_FORMAT,
+                                    fieldDeclaration.getType().toString(),
+                                    arrayDeclare,
+                                    memberPrefix,
+                                    getterPrefix,
+                                    WordUtils.capitalize(variableDeclarator.getId().getName()),
+                                    variableDeclarator.getId().getName(),
+                                    System.lineSeparator()
+                            )
+                    );
+                }
+
+                if (!hasSetter(variableDeclarator, mainClass)) {
+
+                    gettersAndSetters.append(
+                            String.format(SETTER_FORMAT,
+                                    memberPrefix,
+                                    WordUtils.capitalize(variableDeclarator.getId().getName()),
+                                    fieldDeclaration.getType().toString(),
+                                    arrayDeclare,
+                                    variableDeclarator.getId().getName(),
+                                    System.lineSeparator()
+                            )
+                    );
+                }
+            }
+        }
+
+        return gettersAndSetters;
     }
 
     private boolean hasGetter(VariableDeclarator variableDeclarator, ClassOrInterfaceDeclaration mainClass) {
@@ -221,4 +227,17 @@ public class GruJavaBean extends GruScriptBase {
         return importList;
     }
 
+    private void visitMember(ClassOrInterfaceDeclaration member, String memberPrefix, StringBuffer gettersAndSetters) {
+
+        if (hasClassAnnotation(member, "GruJavaBean")) {
+            gettersAndSetters.append(generateGettersAndSettersForMember(member, memberPrefix));
+        }
+
+        for (BodyDeclaration bodyDeclaration : member.getMembers()) {
+            if (bodyDeclaration instanceof ClassOrInterfaceDeclaration) {
+                ClassOrInterfaceDeclaration classOrInterfaceDeclaration = (ClassOrInterfaceDeclaration)bodyDeclaration;
+                visitMember((ClassOrInterfaceDeclaration)bodyDeclaration, memberPrefix + "." + classOrInterfaceDeclaration.getName(), gettersAndSetters);
+            }
+        }
+    }
 }
