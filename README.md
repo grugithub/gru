@@ -8,7 +8,7 @@ https://github.com/grugithub/gru/releases
 Unzip the contents and create a new environment variable named GRU\_HOME that points to that folder.
 
 Example:
-GRU\_HOME=/java/apps/gru-0.0.3
+GRU\_HOME=/java/apps/gru-0.0.5
 
 Add the new folder to your path:
 
@@ -27,7 +27,7 @@ If you would like to use the built-in plugins for Gru, you can include the gru-a
         <dependency>
             <groupId>com.psclistens.gru</groupId>
             <artifactId>gru-annotations</artifactId>
-            <version>0.0.3</version>
+            <version>0.0.4</version>
             <scope>provided</scope>
         </dependency>        
 ```
