@@ -10,8 +10,11 @@ import com.github.antlrjavaparser.api.type.PrimitiveType
 import com.github.gru.GruScriptBase
 import org.apache.commons.lang3.text.WordUtils
 
+import java.nio.file.Files;
 import java.nio.file.Path
 import java.nio.file.WatchEvent
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.attribute.FileTime
 
 public class GruJavaBean extends GruScriptBase {
 
@@ -73,10 +76,42 @@ public class GruJavaBean extends GruScriptBase {
 
     @Override
     void statusUnknown(Path path, CompilationUnit compilationUnit) {
-        generateFile(path, compilationUnit);
+        boolean skipFile = false;
+
+        try {
+            BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+            FileTime sourceFileTime = attrs.lastModifiedTime();
+
+            String generatedFileName = getRelatedFileName(path, "JavaBean", "aj");
+
+            File generatedFile = new File(generatedFileName);
+
+            if (generatedFile.exists()) {
+                BasicFileAttributes generatedFileAttrs = Files.readAttributes(generatedFile.toPath(), BasicFileAttributes.class);
+                FileTime generatedFileTime = generatedFileAttrs.lastModifiedTime();
+
+                if (sourceFileTime.compareTo(generatedFileTime) <= 0) {
+                    skipFile = true;
+                }
+            }
+
+        } catch (IOException ex) {
+            // Leave skip false
+        }
+
+        if (!skipFile) {
+            generateFile(path, compilationUnit);
+        } else {
+            System.out.println("Skipping unmodified file: " + path.toString());
+        }
     }
 
     void generateFile(Path path, CompilationUnit compilationUnit) {
+
+        if (!isSafeToOverwriteFile(path, "JavaBean", "aj")) {
+            return;
+        }
+
         if (!hasClassAnnotation(compilationUnit, "GruJavaBean")) {
             // Delete any left over files
             deleteRelatedFile(path, "JavaBean", "aj");
@@ -124,7 +159,7 @@ public class GruJavaBean extends GruScriptBase {
             System.lineSeparator()
         );
 
-        createRelatedFile(path, "JavaBean", "aj", content)
+        createRelatedFile(path, "JavaBean", "aj", content);
     }
 
     private StringBuffer generateGettersAndSettersForMember(ClassOrInterfaceDeclaration mainClass, String memberPrefix) {
@@ -169,16 +204,19 @@ public class GruJavaBean extends GruScriptBase {
 
                 if (!hasSetter(variableDeclarator, mainClass)) {
 
-                    gettersAndSetters.append(
-                            String.format(SETTER_FORMAT,
-                                    memberPrefix,
-                                    WordUtils.capitalize(variableDeclarator.getId().getName()),
-                                    fieldDeclaration.getType().toString(),
-                                    arrayDeclare,
-                                    variableDeclarator.getId().getName(),
-                                    System.lineSeparator()
-                            )
-                    );
+                    // If the field is not marked final, create the setter
+                    if (!ModifierSet.hasModifier(fieldDeclaration.getModifiers(), ModifierSet.FINAL)) {
+                        gettersAndSetters.append(
+                                String.format(SETTER_FORMAT,
+                                        memberPrefix,
+                                        WordUtils.capitalize(variableDeclarator.getId().getName()),
+                                        fieldDeclaration.getType().toString(),
+                                        arrayDeclare,
+                                        variableDeclarator.getId().getName(),
+                                        System.lineSeparator()
+                                )
+                        );
+                    }
                 }
             }
         }

@@ -1,5 +1,7 @@
 package com.github.gru;
 
+import com.psclistens.gru.annotations.GruJavaBean;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -21,7 +23,12 @@ public class GruMain {
         // Initialize from an unknown status
         fileChangedEvent.initialize(currentWorkingDirectory);
 
+        IdleWatcher idleWatcher = new IdleWatcher(fileChangedEvent);
+        Thread idleThread = new Thread(idleWatcher);
+        idleThread.setDaemon(true);
+        idleThread.start();
+
         // Start the listener
-        new WatchDir(dir, true, fileChangedEvent).processEvents();
+        new WatchDir(dir, true, idleWatcher).processEvents();
     }
 }

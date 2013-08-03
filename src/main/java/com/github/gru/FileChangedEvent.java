@@ -44,6 +44,8 @@ public class FileChangedEvent {
             boolean readSuccess = false;
 
             do {
+                attempt++;
+
                 try {
                     CompilationUnit compilationUnit = JavaParser.parse(path.toFile());
                     groovyClassThing.fileChanged(eventType, path, compilationUnit);
@@ -56,17 +58,15 @@ public class FileChangedEvent {
 
                     // Attempt to read the file 3 times
 
-                    attempt++;
-
                     try {
                         Thread.sleep(100);
                     } catch (Exception ex2) {
                         // Ignore (We'll survive if the thread doesn't sleep)
                     }
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-            } while (attempt < 3 && !readSuccess);
+            } while (attempt < 4 && !readSuccess);
 
             if (!readSuccess) {
                 System.err.println("Failed to read file: " + path.toString());

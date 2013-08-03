@@ -25,7 +25,7 @@ public class WatchDir {
     private final Map<WatchKey,Path> keys;
     private final boolean recursive;
     private boolean trace = false;
-    private FileChangedEvent fileChangedEvent;
+    private IdleWatcher idleWatcher;
 
     @SuppressWarnings("unchecked")
     static <T> WatchEvent<T> cast(WatchEvent<?> event) {
@@ -35,11 +35,11 @@ public class WatchDir {
     /**
      * Creates a WatchService and registers the given directory
      */
-    WatchDir(Path dir, boolean recursive, FileChangedEvent fileChangedEvent) throws IOException {
+    WatchDir(Path dir, boolean recursive, IdleWatcher idleWatcher) throws IOException {
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<WatchKey,Path>();
         this.recursive = recursive;
-        this.fileChangedEvent = fileChangedEvent;
+        this.idleWatcher = idleWatcher;
 
         if (recursive) {
             System.out.format("Scanning %s ...\n", dir);
@@ -124,7 +124,10 @@ public class WatchDir {
 
                 // print out event
                 //System.out.format("%s: %s\n", event.kind().name(), child);
-                fileChangedEvent.fileChanged(event.kind(), child);
+                //fileChangedEvent.fileChanged(event.kind(), child);
+
+                idleWatcher.addEvent(new EventData(event.kind(), child));
+                idleWatcher.remainIdle();
 
                 // if directory is created, and watching recursively, then
                 // register it and its sub-directories

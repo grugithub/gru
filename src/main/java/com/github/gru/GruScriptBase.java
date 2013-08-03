@@ -6,14 +6,19 @@ import com.github.antlrjavaparser.api.body.TypeDeclaration;
 import com.github.antlrjavaparser.api.expr.AnnotationExpr;
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.WatchEvent;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * User: mdehaan
@@ -72,6 +77,8 @@ public abstract class GruScriptBase implements GruScriptInterface {
 
         Path path = new File((fileNameAndPath)).toPath();
 
+        fileContents = "/* GRU_VERSION(" + GruVersion.GRU_VERSION.toString() + ") */" + System.lineSeparator() + fileContents;
+
         Charset charset = Charset.forName("US-ASCII");
 
         BufferedWriter writer = null;
@@ -102,7 +109,74 @@ public abstract class GruScriptBase implements GruScriptInterface {
         deleteFile(getRelatedFileName(hostFile, classifier, extension));
     }
 
-    private String getRelatedFileName(Path hostFile, String classifier, String extension) {
+    /**
+     * Used to test if a generated file was generated from a newer version of Gru
+     *
+     * @return
+     */
+    protected boolean isSafeToOverwriteFile(Path hostFile, String classifier, String extension) {
+        File generatedFile = new File(getRelatedFileName(hostFile, classifier, extension));
+
+        // If the file doesn't exist yet, then it's safe to overwrite
+        if (!generatedFile.exists()) {
+            return true;
+        }
+
+        BufferedReader fileReader = null;
+        try {
+            fileReader = new BufferedReader(new FileReader(generatedFile));
+            String versionLine = fileReader.readLine();
+
+            // If the version string is not found, it is safe to overwrite
+            if (versionLine == null || versionLine.length() < 11) {
+                return true;
+            }
+
+            String gruVersionString = null;
+            try {
+                Pattern regex = Pattern.compile("GRU_VERSION\\(([0-9.?]+)\\)");
+                Matcher regexMatcher = regex.matcher(versionLine);
+                if (regexMatcher.find()) {
+                    gruVersionString = regexMatcher.group(1);
+                }
+            } catch (PatternSyntaxException ex) {
+                // My syntax is perfect
+                ex.printStackTrace();
+            }
+
+            // Version string not found
+            if (gruVersionString == null || gruVersionString.length() == 0) {
+                return true;
+            }
+
+            GruVersion gruVersion = new GruVersion(gruVersionString);
+            if (GruVersion.GRU_VERSION.compareTo(gruVersion) >= 0) {
+                return true;
+            } else {
+                System.err.println("*********************************************************************");
+                System.err.println("** WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING **");
+                System.err.println("*********************************************************************");
+                System.err.println("* This file was created with a newer version of Gru.                *");
+                System.err.println("* Please download the latest version of Gru:                        *");
+                System.err.println("*                                                                   *");
+                System.err.println("* https://github.com/grugithub/gru/releases                         *");
+                System.err.println("*********************************************************************");
+                return false;
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException("Unable to determine if it's safe to overwrite file: " + hostFile.toString(), ex);
+        } finally {
+            if (fileReader != null) {
+                try {
+                    fileReader.close();
+                } catch (IOException e) {
+
+                }
+            }
+        }
+    }
+
+    protected String getRelatedFileName(Path hostFile, String classifier, String extension) {
         // Remove the extension
         String fileName = FilenameUtils.removeExtension(hostFile.toString());
 
